@@ -1,0 +1,6 @@
+rootProject.name = 'jmix-oidc-restds-sample'
+
+includeBuild 'integrated-apps/client-app'
+includeBuild 'integrated-apps/service-app'
+includeBuild 'separate-tiers/backend-app'
+includeBuild 'separate-tiers/frontend-app'
