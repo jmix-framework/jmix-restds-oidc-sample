@@ -1,0 +1,40 @@
+:sample-project: jmix-restds-oidc-sample
+
+= Using REST DataStore with External Authentication
+
+== Keycloak Setup
+
+. Log in to the Keycloak admin console and create a new realm called `jmix-restds-oidc-sample`.
+
+. Create the following clients in this realm:
+
+* `integrated-apps-client`
+** *Capability config* tab
+*** *Client authentication*: On
+** *Login settings* tab
+*** *Valid redirect URIs*:  `http://localhost:8080/*`, `http://localhost:8081/*`
+*** *Web origins*:  `+`
+
+* `integrated-apps-service`
+** *Capability config* tab
+*** *Client authentication*: On
+** *Login settings* tab
+*** *Valid redirect URIs*:  `http://localhost:8080/*`, `http://localhost:8081/*`
+*** *Web origins*:  `+`
+
+* `separate-tiers-frontend`
+** *Capability config* tab
+*** *Client authentication*: On
+** *Login settings* tab
+*** *Valid redirect URIs*:  `http://localhost:8080/*`
+*** *Web origins*:  `http://localhost:8080/*`
+
+. For each client, switch to the *Client scopes* tab, then open the `[client-name]-dedicated` scope. Add predefined mapper for `realm roles`. Open the created `realm roles` mapper and set the following values:
+* *Token Claim Name*: `roles`
+* *Add to userinfo*: On
+
+. Create two realm roles: `system-full-access` and `employee`.
+
+. Create two users: `alice` and `bob`. Fill in also the *First name* and *Last name* attributes, for example `Alice Brown` and `Robert Taylor`. Set user passwords on the *Credentials* tab.
+
+. On the *Role mapping* tab, assign `system-full-access` role to `alice` and `employee` role to `bob`. Use *Filter by realm roles* to find the roles.

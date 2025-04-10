@@ -3,6 +3,7 @@
 
     <menu id="application" title="msg://com.company.serviceapp/menu.application.title" opened="true">
         <item view="User.list" title="msg://com.company.serviceapp.view.user/UserListView.title"/>
+        <item view="Customer.list" title="msg://com.company.serviceapp.view.customer/customerListView.title"/>
     </menu>
 
 </menu-config>
