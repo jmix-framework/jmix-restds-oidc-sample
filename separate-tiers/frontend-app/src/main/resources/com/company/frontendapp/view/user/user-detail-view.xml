@@ -10,6 +10,7 @@
         </instance>
     </data>
     <actions>
+        <action id="enableEditingAction" type="detail_enableEditing"/>
         <action id="saveAction" type="detail_saveClose"/>
         <action id="closeAction" type="detail_close"/>
     </actions>
@@ -19,14 +20,6 @@
     <layout>
         <formLayout id="form" dataContainer="userDc">
             <textField id="usernameField" property="username" readOnly="true"/>
-            <passwordField id="passwordField"
-                           label="msg://com.company.frontendapp.entity/User.password"
-                           required="true"
-                           visible="false"/>
-            <passwordField id="confirmPasswordField"
-                           label="msg://confirmPassword"
-                           required="true"
-                           visible="false"/>
             <textField id="firstNameField" property="firstName"/>
             <textField id="lastNameField" property="lastName"/>
             <textField id="emailField" property="email"/>
@@ -34,6 +27,7 @@
             <checkbox id="activeField" property="active"/>
         </formLayout>
         <hbox id="detailActions">
+            <button id="enableEditingButton" action="enableEditingAction"/>
             <button id="saveAndCloseButton" action="saveAction"/>
             <button id="closeButton" action="closeAction"/>
         </hbox>

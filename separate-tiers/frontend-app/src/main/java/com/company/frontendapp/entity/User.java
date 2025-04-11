@@ -1,58 +1,48 @@
 package com.company.frontendapp.entity;
 
 import io.jmix.core.HasTimeZone;
-import io.jmix.core.annotation.Secret;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
-import io.jmix.core.entity.annotation.SystemLevel;
-import io.jmix.core.metamodel.annotation.DependsOnProperties;
-import io.jmix.core.metamodel.annotation.InstanceName;
-import io.jmix.core.metamodel.annotation.JmixEntity;
-import io.jmix.security.authentication.JmixUserDetails;
-import org.springframework.security.core.GrantedAuthority;
-import jakarta.persistence.*;
+import io.jmix.core.entity.annotation.JmixId;
+import io.jmix.core.metamodel.annotation.*;
+import io.jmix.oidc.user.DefaultJmixOidcUser;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
-@JmixEntity
-@Entity
-@Table(name = "USER_", indexes = {
-        @Index(name = "IDX_USER__ON_USERNAME", columnList = "USERNAME", unique = true)
-})
-public class User implements JmixUserDetails, HasTimeZone {
+@Store(name = "backend")
+@JmixEntity(annotatedPropertiesOnly = true)
+public class User extends DefaultJmixOidcUser implements HasTimeZone {
 
-    @Id
-    @Column(name = "ID")
+    @JmixProperty
+    @JmixId
     @JmixGeneratedValue
     private UUID id;
 
-    @Version
-    @Column(name = "VERSION", nullable = false)
+    @JmixProperty
     private Integer version;
 
-    @Column(name = "USERNAME", nullable = false)
+    @JmixProperty
     private String username;
 
-    @Secret
-    @SystemLevel
-    @Column(name = "PASSWORD")
-    private String password;
-
-    @Column(name = "FIRST_NAME")
+    @JmixProperty
     private String firstName;
 
-    @Column(name = "LAST_NAME")
+    @JmixProperty
     private String lastName;
 
+
+    @JmixProperty
     @Email
-    @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "ACTIVE")
+    @JmixProperty
     private Boolean active = true;
 
-    @Column(name = "TIME_ZONE_ID")
+    @JmixProperty
     private String timeZoneId;
 
     @Transient
@@ -74,10 +64,6 @@ public class User implements JmixUserDetails, HasTimeZone {
         this.version = version;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     @Override
     public String getUsername() {
         return username;
@@ -93,10 +79,6 @@ public class User implements JmixUserDetails, HasTimeZone {
 
     public void setActive(final Boolean active) {
         this.active = active;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
     }
 
     public String getEmail() {
@@ -126,6 +108,11 @@ public class User implements JmixUserDetails, HasTimeZone {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities != null ? authorities : Collections.emptyList();
+    }
+
+    @Override
+    public String getPassword() {
+        return "";
     }
 
     @Override
