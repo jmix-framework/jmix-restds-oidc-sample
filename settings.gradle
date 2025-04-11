@@ -1,4 +1,4 @@
-rootProject.name = 'jmix-oidc-restds-sample'
+rootProject.name = 'jmix-restds-oidc-sample'
 
 includeBuild 'integrated-apps/client-app'
 includeBuild 'integrated-apps/service-app'
