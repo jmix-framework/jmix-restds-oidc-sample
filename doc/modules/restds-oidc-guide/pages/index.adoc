@@ -2,39 +2,420 @@
 
 = Using REST DataStore with External Authentication
 
-== Keycloak Setup
+[[prerequisites]]
+== Prerequisites
+
+[[get-sample-project]]
+=== Get Sample Project
+
+. xref:ROOT:setup.adoc[Setup] the development environment.
+
+. Clone the https://github.com/jmix-framework/{sample-project}[sample project^] and switch to `{page-origin-branch}` branch:
++
+[source,subs=attributes+]
+----
+git clone https://github.com/jmix-framework/{sample-project}
+cd {sample-project}
+git checkout {page-origin-branch}
+----
+
+[[keycloak-setup]]
+=== Set Up Keycloak
+
+. Run Keycloak in a docker container:
++
+[source]
+----
+docker run -p 8180:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin --name=keycloak quay.io/keycloak/keycloak:26.1 start-dev
+----
 
 . Log in to the Keycloak admin console and create a new realm called `jmix-restds-oidc-sample`.
 
 . Create the following clients in this realm:
 
 * `integrated-apps-client`
-** *Capability config* tab
+** *Capability config* tab:
 *** *Client authentication*: On
-** *Login settings* tab
-*** *Valid redirect URIs*:  `http://localhost:8080/*`, `http://localhost:8081/*`
+** *Login settings* tab:
+*** *Valid redirect URIs*:  `++http://localhost:8080/*++`, `++http://localhost:8081/*++`
 *** *Web origins*:  `+`
 
 * `integrated-apps-service`
-** *Capability config* tab
+** *Capability config* tab:
 *** *Client authentication*: On
-** *Login settings* tab
-*** *Valid redirect URIs*:  `http://localhost:8080/*`, `http://localhost:8081/*`
+** *Login settings* tab:
+*** *Valid redirect URIs*:  `++http://localhost:8080/*++`, `++http://localhost:8081/*++`
 *** *Web origins*:  `+`
 
 * `separate-tiers-frontend`
-** *Capability config* tab
+** *Capability config* tab:
 *** *Client authentication*: On
-** *Login settings* tab
-*** *Valid redirect URIs*:  `http://localhost:8080/*`
-*** *Web origins*:  `http://localhost:8080/*`
+** *Login settings* tab:
+*** *Valid redirect URIs*:  `++http://localhost:8080/*++`
+*** *Web origins*:  `+`
 
-. For each client, switch to the *Client scopes* tab, then open the `[client-name]-dedicated` scope. Add predefined mapper for `realm roles`. Open the created `realm roles` mapper and set the following values:
+. For each client, switch to the *Client scopes* tab and open the `[client-name]-dedicated` scope. Add predefined mapper for `realm roles`. Open the created `realm roles` mapper and set the following values:
 * *Token Claim Name*: `roles`
 * *Add to userinfo*: On
 
 . Create two realm roles: `system-full-access` and `employee`.
 
-. Create two users: `alice` and `bob`. Fill in also the *First name* and *Last name* attributes, for example `Alice Brown` and `Robert Taylor`. Set user passwords on the *Credentials* tab.
+. Create two users: `alice` and `bob`. Fill in the *Email*, *First name* and *Last name* attributes. Set user passwords on the *Credentials* tab.
 
 . On the *Role mapping* tab, assign `system-full-access` role to `alice` and `employee` role to `bob`. Use *Filter by realm roles* to find the roles.
+
+[[integrated-applications-example]]
+== Integrated Applications Example
+
+In this example, the distributed system consists of two applications: Client and Service.
+
+Both applications have their own databases and UI, and use the Jmix xref:oidc:index.adoc[] add-on to enable user authentication through Keycloak. The Client application accesses customer data through the xref:rest-ds:index.adoc[REST DataStore].
+
+.Integrated Applications Overview
+image::integrated-apps-1.svg[align="center"]
+
+The Service application includes the `Customer` JPA entity and customer management views. The Client application has a corresponding `Customer` DTO entity and related views.
+
+.Data Models of the Applications
+image::integrated-apps-3.svg[align="center"]
+
+When the Client's REST DataStore makes a request to the Service's REST API, it includes the authorization token of the current user obtained from Keycloak during login. Thus, when executing REST requests, the Service code acts on behalf of the user who is logged into the Client.
+
+.Client/Service Integration Flow
+image::integrated-apps-2.svg[align="center"]
+
+Each application has two roles: `system-full-access` and `employee`.
+
+The `employee` role in Service application provides access only to the `Customer` entity and related views. In the Client application, this role also enables managing the `Order` entity.
+
+According to the <<keycloak-setup,Keycloak setup>>, `alice` will be granted the `system-full-access` role and `bob` will be granted the `employee` role.
+
+[[integrated-applications-example-in-action]]
+=== Example in Action
+
+. Open the root project in IntelliJ IDEA with the Jmix Studio plugin installed.
++
+Launch the `integrated-apps-client` and `integrated-apps-service` applications using their run/debug configurations.
++
+The applications are configured to run on different ports: Client on 8080, Service on 8081.
+
+. Open the Client application by navigating to http://localhost:8080[^] in your web browser. You will be redirected to the Keycloak login page.
++
+Log in as `bob` with the password that you have set in Keycloak. You will be able to manage customers in `Customer (DTO)` views.
++
+Log in as `alice`. Open the list of users and make sure it contains both `bob` and `alice` users with data replicated from Keycloak.
+
+. Open the Service application by navigating to http://localhost:8081[^] in your web browser. You will be redirected to the Keycloak login page.
++
+Log in as `alice`. You will be able to manage customers and see the list of users with data replicated from Keycloak.
+
+[[service-application-details]]
+=== Service Application Details
+
+. The Service application includes the xref:rest:index.adoc[] and xref:oidc:index.adoc[] add-ons:
++
+[source,groovy,indent=0]
+.integrated-apps/service-app/build.gradle
+----
+include::example$/integrated-apps/service-app/build.gradle[tags=add-ons]
+----
+
+. To run on a specific port and prevent cookie conflicts, the Service application requires the following properties:
++
+[source,properties,indent=0]
+.integrated-apps/service-app/src/main/resources/application.properties
+----
+include::example$/integrated-apps/service-app/src/main/resources/application.properties[tags=port]
+----
+
+. Spring Security OAuth2 properties provide integration with Keycloak for authenticating users in the UI and validating tokens sent by the Client in REST API requests:
++
+[source,properties,indent=0]
+.integrated-apps/service-app/src/main/resources/application.properties
+----
+include::example$/integrated-apps/service-app/src/main/resources/application.properties[tags=oauth2]
+----
+
+. The REST API endpoints are secured by specifying the following property:
++
+[source,properties,indent=0]
+.integrated-apps/service-app/src/main/resources/application.properties
+----
+include::example$/integrated-apps/service-app/src/main/resources/application.properties[tags=rest]
+----
+
+. In order to bypass the Spring Boot's default login page and go directly to Keycloak on login, the application includes the following property and customized security configuration:
++
+[source,properties,indent=0]
+.integrated-apps/service-app/src/main/resources/application.properties
+----
+include::example$/integrated-apps/service-app/src/main/resources/application.properties[tags=oidc-config]
+----
++
+[source,java,indent=0]
+.integrated-apps/service-app/src/main/java/com/company/serviceapp/security/AppSecurityConfiguration.java
+----
+include::example$/integrated-apps/service-app/src/main/java/com/company/serviceapp/security/AppSecurityConfiguration.java[]
+----
+
+. For compatibility with Jmix OIDC add-on, the `User` entity extends the `JmixOidcUserEntity` class:
++
+[source,java,indent=0]
+.integrated-apps/service-app/src/main/java/com/company/serviceapp/entity/User.java
+----
+include::example$/integrated-apps/service-app/src/main/java/com/company/serviceapp/entity/User.java[tags=user]
+----
+
+. `AppUserMapper` bean performs synchronization of `User` entity instances with the user information from Keycloak:
++
+[source,java,indent=0]
+.integrated-apps/service-app/src/main/java/com/company/serviceapp/security/AppUserMapper.java
+----
+include::example$/integrated-apps/service-app/src/main/java/com/company/serviceapp/security/AppUserMapper.java[]
+----
+
+[[client-application-details]]
+=== Client Application Details
+
+. The Client application includes the xref:rest-ds:index.adoc[] and xref:oidc:index.adoc[] add-ons:
++
+[source,groovy,indent=0]
+.integrated-apps/client-app/build.gradle
+----
+include::example$/integrated-apps/client-app/build.gradle[tags=add-ons]
+----
+
+. Spring Security OAuth2 properties provide integration with Keycloak for authenticating users in the UI:
++
+[source,properties,indent=0]
+.integrated-apps/client-app/src/main/resources/application.properties
+----
+include::example$/integrated-apps/client-app/src/main/resources/application.properties[tags=oauth2]
+----
+
+. The Client application includes the same configuration as that of the Service application described in items 5, 6, and 7 of the previous section:
+** `jmix.oidc.use-default-ui-configuration=false` property and `AppSecurityConfiguration` class that configures OAuth2 login page.
+** `User` entity extends `JmixOidcUserEntity` for compatibility with OIDC add-on.
+** `AppUserMapper` class that performs synchronization of `User` entity instances with the user information from Keycloak.
+
+. The `serviceapp` REST DataStore is configured as follows:
++
+[source,properties,indent=0]
+.integrated-apps/client-app/src/main/resources/application.properties
+----
+include::example$/integrated-apps/client-app/src/main/resources/application.properties[tags=restds]
+----
+
+. To use the OAuth2 token of the current user when making requests to the Service's REST API, the Client application defines the following bean that implements the `RestAuthenticator` interface:
++
+[source,java,indent=0]
+.integrated-apps/client-app/src/main/java/com/company/clientapp/security/RestOidcAuthenticator.java
+----
+include::example$/integrated-apps/client-app/src/main/java/com/company/clientapp/security/RestOidcAuthenticator.java[]
+----
++
+This bean's name is specified in the `[restds-name].authenticator` property:
++
+[source,properties,indent=0]
+.integrated-apps/client-app/src/main/resources/application.properties
+----
+include::example$/integrated-apps/client-app/src/main/resources/application.properties[tags=restds-auth]
+----
+
+[[separate-tiers-example]]
+== Separate Tiers Example
+
+In this example, the distributed system comprises the Backend and Frontend applications.
+
+The Backend application connects to the database and provides the REST API. The Frontend application features a user interface and retrieves data from the Backend via the xref:rest-ds:index.adoc[REST DataStore].
+
+Both applications use the Jmix xref:oidc:index.adoc[] add-on for integration with Keycloak: the Frontend authenticates users in UI, the Backend validates tokens sent by the Client with REST requests.
+
+.Separate Tiers Overview
+image::separate-tiers-1.svg[align="center"]
+
+The data models of the applications have the same structure; however, the Backend includes JPA entities, while the Frontend includes their corresponding DTO entities.
+
+.Data Models of the Applications
+image::separate-tiers-2.svg[align="center"]
+
+When the Frontend REST DataStore makes a request to the Backend REST API, it includes the authorization token of the current user obtained from Keycloak during login. Thus, when executing REST requests, the Backend code acts on behalf of the user who is logged into the Frontend.
+
+.Frontend/Backend Integration Flow
+image::separate-tiers-3.svg[align="center"]
+
+Each application has two roles: `system-full-access` and `employee`. The `employee` role provides access only to the `Customer` entity and, in the Frontend application, to the corresponding views.
+
+According to the <<keycloak-setup,Keycloak setup>>, `alice` will be granted the `system-full-access` role and `bob` will be granted the `employee` role.
+
+[[separate-tiers-example-in-action]]
+=== Example in Action
+
+. Open the root project in IntelliJ IDEA with the Jmix Studio plugin installed.
++
+Launch the `separate-tiers-backend` and `separate-tiers-frontend` applications using their run/debug configurations.
++
+The applications are configured to run on different ports: Frontend on 8080, Backend on 8081.
+
+. Open the Frontend application by navigating to http://localhost:8080[^] in your web browser. You will be redirected to the Keycloak login page.
++
+Log in as `bob` with the password that you have set in Keycloak. You will be able to manage customers in `Customer` views.
++
+Log in as `alice`. Open the list of users and make sure it contains both `bob` and `alice` users with data replicated from Keycloak.
+
+[[backend-application-details]]
+=== Backend Application Details
+
+. The Backend application includes the xref:rest:index.adoc[] and xref:oidc:index.adoc[] add-ons:
++
+[source,groovy,indent=0]
+.separate-tiers/backend-app/build.gradle
+----
+include::example$/separate-tiers/backend-app/build.gradle[tags=add-ons]
+----
++
+While the Backend application doesn't have a UI itself, it still needs the `jmix-flowui-data-starter` dependency to provide the database persistence for UI filter configurations and user settings.
+
+. The Backend application runs on a non-standard port:
++
+[source,properties,indent=0]
+.separate-tiers/backend-app/src/main/resources/application.properties
+----
+include::example$/separate-tiers/backend-app/src/main/resources/application.properties[tags=port]
+----
+
+. The following Spring Security OAuth2 property provides validation of tokens sent by the Client in REST API requests:
++
+[source,properties,indent=0]
+.separate-tiers/backend-app/src/main/resources/application.properties
+----
+include::example$/separate-tiers/backend-app/src/main/resources/application.properties[tags=oauth2]
+----
+
+. The REST API endpoints are secured by specifying the following property:
++
+[source,properties,indent=0]
+.separate-tiers/backend-app/src/main/resources/application.properties
+----
+include::example$/separate-tiers/backend-app/src/main/resources/application.properties[tags=rest]
+----
+
+. For compatibility with Jmix OIDC add-on, the `User` entity extends the `JmixOidcUserEntity` class:
++
+[source,java,indent=0]
+.separate-tiers/backend-app/src/main/java/com/company/backendapp/entity/User.java
+----
+include::example$/separate-tiers/backend-app/src/main/java/com/company/backendapp/entity/User.java[tags=user]
+----
+
+. `BackendUserMapper` bean performs synchronization of `User` entity instances with the user information from Keycloak:
++
+[source,java,indent=0]
+.separate-tiers/backend-app/src/main/java/com/company/backendapp/security/AppUserMapper.java
+----
+include::example$/separate-tiers/backend-app/src/main/java/com/company/backendapp/security/BackendUserMapper.java[]
+----
+
+[[frontend-application-details]]
+=== Frontend Application Details
+
+. The Client application includes the xref:rest-ds:index.adoc[] and xref:oidc:index.adoc[] add-ons:
++
+[source,groovy,indent=0]
+.separate-tiers/frontend-app/build.gradle
+----
+include::example$/separate-tiers/frontend-app/build.gradle[tags=add-ons]
+----
++
+The `jmix-flowui-restds-starter` dependency provides implementation of UI filter configuration and user settings persistence based on REST DataStore.
+
+. Spring Security OAuth2 properties provide integration with Keycloak for authenticating users in the UI:
++
+[source,properties,indent=0]
+.separate-tiers/frontend-app/src/main/resources/application.properties
+----
+include::example$/separate-tiers/frontend-app/src/main/resources/application.properties[tags=oauth2]
+----
+
+. In order to bypass the Spring Boot's default login page and go directly to Keycloak on login, the application includes the following property and customized security configuration:
++
+[source,properties,indent=0]
+.separate-tiers/frontend-app/src/main/resources/application.properties
+----
+include::example$/separate-tiers/frontend-app/src/main/resources/application.properties[tags=oidc-config]
+----
++
+[source,java,indent=0]
+.separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/AppSecurityConfiguration.java
+----
+include::example$/separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/AppSecurityConfiguration.java[]
+----
+
+. For compatibility with Jmix OIDC add-on, the `User` DTO entity extends the `DefaultJmixOidcUser` class:
++
+[source,java,indent=0]
+.separate-tiers/frontend-app/src/main/java/com/company/frontendapp/entity/User.java
+----
+include::example$/separate-tiers/frontend-app/src/main/java/com/company/frontendapp/entity/User.java[tags=user]
+----
+
+. `FrontendUserMapper` bean maps the user information from Keycloak to the `User` DTO entity:
++
+[source,java,indent=0]
+.integrated-apps/service-app/src/main/java/com/company/serviceapp/security/AppUserMapper.java
+----
+include::example$/separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/FrontendUserMapper.java[]
+----
++
+Notice that this mapper extends `BaseOidcUserMapper` and does not persist the user data to any storage. Instead, the Frontend relies on synchronization of users by the `BackendUserMapper` of the Backend application.
+
+. The `backend` REST DataStore is configured as follows:
++
+[source,properties,indent=0]
+.separate-tiers/frontend-app/src/main/resources/application.properties
+----
+include::example$/separate-tiers/frontend-app/src/main/resources/application.properties[tags=restds]
+----
++
+The `jmix.restds.ui-config-store property` defines the REST data store that will be used for UI filter configuration and user settings and persistence.
+
+. To use the OAuth2 token of the current user when making requests to the Backend REST API, the Frontend application defines the following bean that implements the `RestAuthenticator` interface:
++
+[source,java,indent=0]
+.separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/RestOidcAuthenticator.java
+----
+include::example$/separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/RestOidcAuthenticator.java[]
+----
++
+This bean's name is specified in the `[restds-name].authenticator` property:
++
+[source,properties,indent=0]
+.separate-tiers/frontend-app/src/main/resources/application.properties
+----
+include::example$/separate-tiers/frontend-app/src/main/resources/application.properties[tags=restds-auth]
+----
+
+[[summary]]
+== Summary
+
+This guide demonstrates how to use REST DataStore with external authentication in Jmix applications, leveraging Keycloak as the OpenID Connect provider. Two architectural patterns are covered:
+
+. Integrated Applications Example
+
+* Client and Service applications run independently, each with their own UI and database.
+* The Client accesses the Service's REST API using REST DataStore, forwarding the user's OAuth2 token for authentication.
+* Both applications use Jmix OIDC add-on for Keycloak integration, with role-based access control.
+* The Service validates incoming OAuth2 tokens and applies the authentication of the user logged into the Client when executing code.
+
+. Separate Tiers Example
+
+* A Frontend application (UI-only) retrieves data from a Backend (REST API + database) via REST DataStore.
+* The Frontend authenticates users via Keycloak and includes their token in REST requests.
+* The Backend validates OAuth2 tokens and applies the authentication of the user logged into the Client when executing code.
+
+Key implementation details:
+
+* The REST DataStore configuration includes a custom `RestAuthenticator` to forward OAuth2 tokens.
+* The security customization includes custom mappers based on classes from Jmix OIDC add-on for synchronizing user data from Keycloak.
+
+By following this guide, developers can implement secure, distributed Jmix applications with external authentication and REST-based data access.

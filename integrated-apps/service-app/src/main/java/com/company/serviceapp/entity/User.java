@@ -16,12 +16,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
+// tag::user[]
 @JmixEntity
 @Entity
 @Table(name = "USER_", indexes = {
         @Index(name = "IDX_USER__ON_USERNAME", columnList = "USERNAME", unique = true)
 })
 public class User extends JmixOidcUserEntity implements HasTimeZone {
+    // end::user[]
 
     @Id
     @Column(name = "ID")

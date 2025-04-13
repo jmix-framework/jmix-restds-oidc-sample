@@ -13,9 +13,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
+// tag::user[]
 @Store(name = "backend")
 @JmixEntity(annotatedPropertiesOnly = true)
 public class User extends DefaultJmixOidcUser implements HasTimeZone {
+// end::user[]
 
     @JmixProperty
     @JmixId

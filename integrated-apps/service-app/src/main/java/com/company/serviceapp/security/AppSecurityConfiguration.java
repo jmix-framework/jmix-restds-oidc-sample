@@ -7,12 +7,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 @Configuration
 public class AppSecurityConfiguration extends OidcVaadinWebSecurity {
 
-    protected void configureJmixSpecifics(HttpSecurity http) throws Exception {
-        super.configureJmixSpecifics(http);
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        super.configure(http);
 
-        http.oauth2Login(oauth2Login -> {
-            oauth2Login.loginPage("/oauth2/authorization/keycloak").defaultSuccessUrl("/", true);
-        });
+        http.oauth2Login(oauth2Login -> oauth2Login
+                .loginPage("/oauth2/authorization/keycloak")
+                .defaultSuccessUrl("/", true));
     }
-
 }

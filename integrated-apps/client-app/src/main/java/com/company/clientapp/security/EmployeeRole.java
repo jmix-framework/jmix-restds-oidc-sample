@@ -1,6 +1,7 @@
 package com.company.clientapp.security;
 
 import com.company.clientapp.entity.Customer;
+import com.company.clientapp.entity.Order;
 import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.EntityPolicyAction;
 import io.jmix.security.role.annotation.EntityAttributePolicy;
@@ -17,7 +18,11 @@ public interface EmployeeRole extends UiMinimalRole {
     @EntityPolicy(entityClass = Customer.class, actions = EntityPolicyAction.ALL)
     void customer();
 
-    @MenuPolicy(menuIds = "Customer.list")
-    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail"})
+    @MenuPolicy(menuIds = {"Customer.list", "Order_.list"})
+    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "Order_.list", "Order_.detail"})
     void screens();
+
+    @EntityAttributePolicy(entityClass = Order.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = Order.class, actions = EntityPolicyAction.ALL)
+    void order();
 }
