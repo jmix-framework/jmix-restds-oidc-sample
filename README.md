@@ -1,11 +1,5 @@
-## Composite Jmix Project
+# Jmix REST DataStore with External Authentication Sample
 
-This is the root aggregating project of the composite project. It combines other projects in a single workspace using `includeBuild` directives located in `settings.gradle`.
+This project demonstrates the integration of Jmix applications using [REST API](https://docs.jmix.io/jmix/rest), [REST DataStore](https://docs.jmix.io/jmix/rest-ds), [OpenID Connect](https://docs.jmix.io/jmix/oidc) add-ons and external authentication based on Keycloak.
 
-Use *New > Subproject* actions of the Jmix tool window to create new or add existing subprojects to the composite project.
-
-Alternatively, you can include subprojects by adding relative paths to them to `settings.gradle`. For example, the following instruction includes a project from the `modules/users` subdirectory:
-
-```
-includeBuild 'modules/users'
-```
+See the complete description in [REST DataStore with External Authentication](https://docs.jmix.io/jmix/restds-oidc-guide) guide.

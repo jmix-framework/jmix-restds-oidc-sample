@@ -1,6 +1,24 @@
 :sample-project: jmix-restds-oidc-sample
 
-= Using REST DataStore with External Authentication
+= REST DataStore with External Authentication
+
+This guide shows how to use the xref:rest-ds:index.adoc[Jmix REST DataStore] together with external authentication, using Keycloak as an xref:oidc:index.adoc[OpenID Connect (OIDC)] identity provider.
+
+In distributed systems, it's common for applications to authenticate users centrally but share data and logic between services. With Jmix, you can build secure applications where user data and access control are managed externally, while services communicate through REST APIs and forward user tokens for authentication.
+
+You’ll learn how to:
+
+* Set up a Keycloak server for managing users, roles, and tokens.
+* Configure Jmix applications to authenticate users via Keycloak.
+* Implement user synchronization between Keycloak and Jmix.
+* Use the REST DataStore to access data from another application on behalf of the logged-in user.
+
+The guide covers two architectural patterns:
+
+- **Integrated Applications**: Both the Client and Service applications have UIs and run independently, communicating through REST with token-based authentication.
+- **Separate Tiers**: The UI-only Frontend application retrieves data from a Backend service via REST, with all authentication handled through Keycloak.
+
+By the end of this guide, you'll have a working example of both scenarios and understand the key concepts behind integrating REST DataStore with external authentication in a secure and maintainable way.
 
 [[prerequisites]]
 == Prerequisites
@@ -22,7 +40,7 @@ git checkout {page-origin-branch}
 [[keycloak-setup]]
 === Set Up Keycloak
 
-. Run Keycloak in a docker container:
+. Run Keycloak in a Docker container:
 +
 [source]
 ----
