@@ -224,15 +224,7 @@ include::example$/integrated-apps/client-app/src/main/resources/application.prop
 include::example$/integrated-apps/client-app/src/main/resources/application.properties[tags=restds]
 ----
 
-. To use the OAuth2 token of the current user when making requests to the Service's REST API, the Client application defines the following bean that implements the `RestAuthenticator` interface:
-+
-[source,java,indent=0]
-.integrated-apps/client-app/src/main/java/com/company/clientapp/security/RestOidcAuthenticator.java
-----
-include::example$/integrated-apps/client-app/src/main/java/com/company/clientapp/security/RestOidcAuthenticator.java[]
-----
-+
-This bean's name is specified in the `[restds-name].authenticator` property:
+. To use the OAuth2 token of the current user when making requests to the Service's REST API, the Client application defines the following properties for the `serviceapp` REST DataStore:
 +
 [source,properties,indent=0]
 .integrated-apps/client-app/src/main/resources/application.properties
@@ -397,15 +389,7 @@ include::example$/separate-tiers/frontend-app/src/main/resources/application.pro
 +
 The `jmix.restds.ui-config-store property` defines the REST data store that will be used for UI filter configuration and user settings and persistence.
 
-. To use the OAuth2 token of the current user when making requests to the Backend REST API, the Frontend application defines the following bean that implements the `RestAuthenticator` interface:
-+
-[source,java,indent=0]
-.separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/RestOidcAuthenticator.java
-----
-include::example$/separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/RestOidcAuthenticator.java[]
-----
-+
-This bean's name is specified in the `[restds-name].authenticator` property:
+. To use the OAuth2 token of the current user when making requests to the Backend REST API, the Frontend application defines the following properties for the `backend` REST DataStore:
 +
 [source,properties,indent=0]
 .separate-tiers/frontend-app/src/main/resources/application.properties
