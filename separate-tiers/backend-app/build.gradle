@@ -7,7 +7,7 @@ plugins {
 apply plugin: 'org.springframework.boot'
 
 jmix {
-    bomVersion = '2.6.0-RC1'
+    bomVersion = '2.6.999-SNAPSHOT'
 }
 
 group = 'com.company'
@@ -16,7 +16,7 @@ version = '0.0.1-SNAPSHOT'
 repositories {
     mavenCentral()
     maven {
-        url 'https://global.repo.jmix.io/repository/public'
+        url 'https://nexus.jmix.io/repository/public'
     }
 }
 
@@ -24,8 +24,6 @@ dependencies {
     // tag::add-ons[]
     implementation 'io.jmix.rest:jmix-rest-starter'
     implementation 'io.jmix.oidc:jmix-oidc-starter'
-
-    implementation 'io.jmix.flowui:jmix-flowui-data-starter'
     // end::add-ons[]
 
     implementation 'io.jmix.core:jmix-core-starter'

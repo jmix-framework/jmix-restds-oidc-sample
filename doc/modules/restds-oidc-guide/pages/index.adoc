@@ -283,8 +283,6 @@ Log in as `alice`. Open the list of users and make sure it contains both `bob` a
 ----
 include::example$/separate-tiers/backend-app/build.gradle[tags=add-ons]
 ----
-+
-While the Backend application doesn't have a UI itself, it still needs the `jmix-flowui-data-starter` dependency to provide the database persistence for UI filter configurations and user settings.
 
 . The Backend application runs on a non-standard port:
 +
@@ -324,6 +322,20 @@ include::example$/separate-tiers/backend-app/src/main/java/com/company/backendap
 .separate-tiers/backend-app/src/main/java/com/company/backendapp/security/AppUserMapper.java
 ----
 include::example$/separate-tiers/backend-app/src/main/java/com/company/backendapp/security/BackendUserMapper.java[]
+----
+
+. To provide the database persistence for UI filter configurations and user settings, the following two entities are copied from the framework's `jmix-flowui-data` module:
++
+[source,java,indent=0]
+.separate-tiers/backend-app/src/main/java/com/company/backendapp/entity/uidata/FilterConfiguration.java
+----
+include::example$/separate-tiers/backend-app/src/main/java/com/company/backendapp/entity/uidata/FilterConfiguration.java[tags=entity]
+----
++
+[source,java,indent=0]
+.separate-tiers/backend-app/src/main/java/com/company/backendapp/entity/uidata/UserSettingsItem.java
+----
+include::example$/separate-tiers/backend-app/src/main/java/com/company/backendapp/entity/uidata/UserSettingsItem.java[tags=entity]
 ----
 
 [[frontend-application-details]]

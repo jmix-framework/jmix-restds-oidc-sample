@@ -1,7 +1,7 @@
 package com.company.serviceapp.user;
 
 import com.company.serviceapp.entity.User;
-import com.company.serviceapp.test_support.AuthenticatedAsAdmin;
+import com.company.serviceapp.test_support.AuthenticatedAsSystem;
 import io.jmix.core.DataManager;
 import io.jmix.core.security.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Sample integration test for the User entity.
  */
 @SpringBootTest
-@ExtendWith(AuthenticatedAsAdmin.class)
+@ExtendWith(AuthenticatedAsSystem.class)
 public class UserTest {
 
     @Autowired
