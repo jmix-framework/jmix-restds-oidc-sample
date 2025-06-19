@@ -1,23 +1,15 @@
-package com.company.frontendapp;
+package com.company.serviceapp.test_support;
 
-import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.test.context.bean.override.convention.TestBean;
 
-@SpringBootTest
-public class ContextLoadedTest {
+public class BaseIntegrationTest {
 
     @TestBean
     ClientRegistrationRepository clientRegistrationRepository;
 
     static ClientRegistrationRepository clientRegistrationRepository() {
         return Mockito.mock(ClientRegistrationRepository.class);
-    }
-
-    @Test
-    void testContextLoaded() {
-        
     }
 }

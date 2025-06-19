@@ -2,6 +2,7 @@ package com.company.serviceapp.user;
 
 import com.company.serviceapp.ServiceAppApplication;
 import com.company.serviceapp.entity.User;
+import com.company.serviceapp.test_support.BaseIntegrationTest;
 import com.company.serviceapp.view.user.UserDetailView;
 import com.company.serviceapp.view.user.UserListView;
 import com.vaadin.flow.component.Component;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -29,7 +31,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 @UiTest
 @SpringBootTest(classes = {ServiceAppApplication.class, FlowuiTestAssistConfiguration.class})
-public class UserUiTest {
+public class UserUiTest extends BaseIntegrationTest {
 
     @Autowired
     ViewNavigators viewNavigators;

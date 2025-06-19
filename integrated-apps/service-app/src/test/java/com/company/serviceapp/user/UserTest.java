@@ -2,6 +2,7 @@ package com.company.serviceapp.user;
 
 import com.company.serviceapp.entity.User;
 import com.company.serviceapp.test_support.AuthenticatedAsSystem;
+import com.company.serviceapp.test_support.BaseIntegrationTest;
 import io.jmix.core.DataManager;
 import io.jmix.core.security.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest
 @ExtendWith(AuthenticatedAsSystem.class)
-public class UserTest {
+public class UserTest extends BaseIntegrationTest {
 
     @Autowired
     DataManager dataManager;
