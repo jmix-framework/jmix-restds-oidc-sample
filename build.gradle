@@ -1,8 +1,15 @@
 ext.jmixCompositeProjectRoot = true
 
+def projectNames = ['client-app', 'service-app', 'backend-app', 'frontend-app']
+
+tasks.register('clean') {
+    projectNames.each {
+        dependsOn gradle.includedBuild(it).task(':clean')
+    }
+}
+
 tasks.register('test') {
-    dependsOn gradle.includedBuild('client-app').task(':test')
-    dependsOn gradle.includedBuild('service-app').task(':test')
-    dependsOn gradle.includedBuild('backend-app').task(':test')
-    dependsOn gradle.includedBuild('frontend-app').task(':test')
+    projectNames.each {
+        dependsOn gradle.includedBuild(it).task(':test')
+    }
 }

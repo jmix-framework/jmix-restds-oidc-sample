@@ -7,10 +7,13 @@ import io.jmix.core.security.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.test.context.bean.override.convention.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +34,13 @@ public class UserTest {
     UserRepository userRepository;
 
     User savedUser;
+
+    @TestBean
+    ClientRegistrationRepository clientRegistrationRepository;
+
+    static ClientRegistrationRepository clientRegistrationRepository() {
+        return Mockito.mock(ClientRegistrationRepository.class);
+    }
 
     @Test
     void test_saveAndLoad() {
