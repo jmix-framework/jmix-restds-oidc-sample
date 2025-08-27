@@ -6,6 +6,8 @@ build/
 !**/src/main/**
 !**/src/test/**
 
+src/main/bundles/
+
 ### IntelliJ IDEA ###
 .idea/*
 !.idea/encodings.xml
@@ -16,3 +18,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# The following files are generated/updated by vaadin-gradle-plugin
+node_modules/
+src/main/frontend/generated/
+pnpmfile.js
+vite.generated.ts
+webpack.generated.js
