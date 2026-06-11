@@ -1,5 +1,5 @@
 plugins {
-    id 'io.jmix' version '2.8.1'
+    id 'io.jmix' version '3.0.0-M5'
     id 'java'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.9'
 }
@@ -8,7 +8,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'com.vaadin'
 
 jmix {
-    bomVersion = '2.8.1'
+    bomVersion = '3.0.999-SNAPSHOT'
 }
 
 group = 'com.company'
@@ -17,7 +17,7 @@ version = '0.0.1-SNAPSHOT'
 repositories {
     mavenCentral()
     maven {
-        url 'https://global.repo.jmix.io/repository/public'
+        url = 'https://nexus.jmix.io/repository/public'
     }
 }
 
@@ -37,21 +37,24 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    runtimeOnly 'org.hsqldb:hsqldb'
-
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
 
-    // Temporary fix of https://github.com/jmix-framework/jmix/issues/4852
-    implementation 'org.eclipse.persistence:org.eclipse.persistence.core'
+    implementation 'com.vaadin:vaadin-dev'
 }
 
 configurations.implementation {
     exclude group: 'com.vaadin', module: 'hilla'
     exclude group: 'com.vaadin', module: 'hilla-dev'
     exclude group: 'com.vaadin', module: 'copilot'
+
+    // Workaround: jmix-core 3.0 temporarily depends on spring-boot-starter-liquibase,
+    // which drags spring-boot-starter-jdbc + HikariCP into this database-less tier
+    // and makes DataSourceAutoConfiguration fail at startup.
+    // Remove after https://github.com/jmix-framework/jmix/issues/5372 is fixed
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-liquibase'
 }
 
 test {
@@ -66,4 +69,5 @@ idea {
 
 vaadin {
     optimizeBundle = false
+    productionMode = false
 }
