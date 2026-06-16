@@ -1,5 +1,6 @@
 package com.company.serviceapp.security;
 
+import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import io.jmix.oidc.OidcVaadinWebSecurity;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,11 +9,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 public class AppSecurityConfiguration extends OidcVaadinWebSecurity {
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
-
-        http.oauth2Login(oauth2Login -> oauth2Login
-                .loginPage("/oauth2/authorization/keycloak")
+    protected void configureVaadinSpecifics(HttpSecurity http) {
+        http.with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer
+                .oauth2LoginPage("/oauth2/authorization/keycloak")
                 .defaultSuccessUrl("/", true));
     }
 }

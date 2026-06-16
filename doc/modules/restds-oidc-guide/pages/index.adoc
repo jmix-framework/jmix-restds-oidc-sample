@@ -384,7 +384,7 @@ include::example$/separate-tiers/frontend-app/src/main/java/com/company/frontend
 . `FrontendUserMapper` bean maps the user information from Keycloak to the `User` DTO entity:
 +
 [source,java,indent=0]
-.integrated-apps/service-app/src/main/java/com/company/serviceapp/security/AppUserMapper.java
+.separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/FrontendUserMapper.java
 ----
 include::example$/separate-tiers/frontend-app/src/main/java/com/company/frontendapp/security/FrontendUserMapper.java[]
 ----
@@ -399,7 +399,7 @@ Notice that this mapper extends `BaseOidcUserMapper` and does not persist the us
 include::example$/separate-tiers/frontend-app/src/main/resources/application.properties[tags=restds]
 ----
 +
-The `jmix.restds.ui-config-store property` defines the REST data store that will be used for UI filter configuration and user settings and persistence.
+The `jmix.restds.ui-config-store` property defines the REST data store that will be used for UI filter configuration and user settings and persistence.
 
 . To use the OAuth2 token of the current user when making requests to the Backend REST API, the Frontend application defines the following properties for the `backend` REST DataStore:
 +
